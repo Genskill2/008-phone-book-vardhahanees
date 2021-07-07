@@ -215,18 +215,19 @@ int delete(FILE *db_file, char *name) {
     if (strcmp(p->name, name) == 0) {
     if(prev!=NULL)
     {
-    del=p;
-    prev->next=del->next;
-    free(del);
-    deleted=1;
+      del=p;
+      prev->next=del->next;
+      free(del);
+      deleted=1;
     }
-    else{
-    del=base;
-    base=base->next;
-    free(del);
-    deleted=1;
+    else
+    {
+      del=base;
+      base=base->next;
+      free(del);
+      deleted=1;
     }
-    }
+ }
     prev=p;
     p=p->next;
     
@@ -249,17 +250,20 @@ int delete(FILE *db_file, char *name) {
   return deleted;
 }
 
-int search(FILE *db_file, char *name){
- entry *p = load_entries(db_file);
+int search(FILE *db_file, char *name)
+{
+  entry *p = load_entries(db_file);
   entry *base = p;
-  int m=0;
+  int t=0;
   while (p!=NULL) {
   if(strcmp(name,p->name)==0)
-   { printf("%s\n",p->phone);
-    m=1;}
-p=p->next;
-    }
-      if(m!=1)
+  { 
+   printf("%s\n",p->phone);
+    t=1;
+  }
+  p=p->next;
+  }
+  if(t!=1)
   {
     return 0;
   }
