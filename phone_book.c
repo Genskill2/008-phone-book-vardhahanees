@@ -193,9 +193,27 @@ int delete(FILE *db_file, char *name) {
   entry *prev = NULL;
   entry *del = NULL ; /* Node to be deleted */
   int deleted = 0;
-  while (p!=NULL) {
-    if (strcmp(p->name, name) == 0) 
-   {
+  while (p!=NULL) 
+  {
+    if (strcmp(p->name, name) == 0) {
+    if(prev!=NULL)
+    {
+      del=p;
+      prev->next=del->next;
+      free(del);
+      deleted=1;
+    }
+    else
+    {
+      del=base;
+      base=base->next;
+      free(del);
+      deleted=1;
+    }
+  }
+    prev=p;
+    p=p->next;
+    
       /* Matching node found. Delete it from the linked list.
          Deletion from a linked list like this
    
@@ -206,48 +224,33 @@ int delete(FILE *db_file, char *name) {
          
          If the node to be deleted is p0, it's a special case. 
       */
-      if (prev!=NULL)
-      {
-        del = p;
-        prev->next = del->next;
-        free(del);
-        deleted = 1;
-     }
-     else 
-     {
-      del = base; 
-      base = base->next;
-      free(del);
-      deleted = 1;
-    }
+
+      /* TBD */
     
-           /* TBD */
-    }
-    prev = p;
-    p = p->next;
   }
   write_all_entries(base);
   free_entries(base);
   return deleted;
 }
 
-int search (FILE*db_file, char *name)
+int search(FILE *db_file, char *name)
 {
   entry *p = load_entries(db_file);
   entry *base = p;
-  int f=0;
-  while (p!=NULL)
+  int t=0;
+  while (p!=NULL) 
   {
-        if(strcmp(p->name,name)==0)
-    {
-      printf("%s\n", p->phone);
-      f = 1;
+    if(strcmp(name,p->name)==0)
+   { 
+      printf("%s\n",p->phone);
+      t=1;
     }
-    p = p->next;
+  p=p->next;
   }
-  if (f!=0)
+  if(m!=1)
+  {
     return 0;
+  }
   free_entries(base);
   return 1;
 }
-    
