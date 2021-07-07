@@ -194,7 +194,8 @@ int delete(FILE *db_file, char *name) {
   entry *del = NULL ; /* Node to be deleted */
   int deleted = 0;
   while (p!=NULL) {
-    if (strcmp(p->name, name) == 0) {
+    if (strcmp(p->name, name) == 0) 
+   {
       /* Matching node found. Delete it from the linked list.
          Deletion from a linked list like this
    
@@ -237,7 +238,7 @@ int search (FILE*db_file, char *name)
   int f=0;
   while (p!=NULL)
   {
-    if (strcmp(p->name,p)==0)
+        if(strcmp(p->name,name)==0)
     {
       printf("%s\n", p->phone);
       f = 1;
