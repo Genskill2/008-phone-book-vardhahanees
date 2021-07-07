@@ -21,17 +21,17 @@ int delete(FILE *, char *);
 /* Utility functions  */
 FILE * open_db_file(); /* Opens the database file. Prints error and
                           quits if it's not available */
-void print_usage(char , char *);  / Prints usage */
-entry load_entries(FILE *);         / Load all entries from the
+void print_usage(char *, char *);  /* Prints usage */
+entry *load_entries(FILE *);         /* Load all entries from the
                                       database file. Returns pointer
                                       to first entry */
-entry create_entry_node(char *, char *);  / Create a new entry
+entry *create_entry_node(char *, char *);  /* Create a new entry
                                               node. Has to be freed by
                                               user. */
-void free_entries(entry ); / TBD Given the first node of a linked list
+void free_entries(entry *); /* TBD Given the first node of a linked list
                                of entries, will free all the nodes */ 
 
-void write_all_entries(entry ); / Given the first node of a linked
+void write_all_entries(entry *); /* Given the first node of a linked
                                     list of entries, will delete the
                                     database file on the disk and save
                                     the given entries into the file */
@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
   } 
 
   if (strcmp(argv[1], "add") == 0) {   /* Handle add */
-    if (argc != 4) {
+    if (argc !=4) {
       print_usage("Improper arguments for add", argv[0]);
       exit(1);
     }
@@ -62,20 +62,21 @@ int main(int argc, char *argv[]) {
     fclose(fp);
     exit(0);
   } else if (strcmp(argv[1], "search") == 0) {  /* Handle search */
-    if (argc != 3) {
-      print_usage("Improper arguments for search", argv[0]);
-      exit(1);
+  if(argc!=3){
+  print_usage("Improper arguments for search",argv[0]);
+    exit(1);
     }
-    FILE *fp = open_db_file();
-    char *name = argv[2];
-    if (!search(fp, name)) {
+  FILE *fp=open_db_file();
+  char *name=argv[2];
+  if (!(search(fp,name))){
       printf("no match\n");
       fclose(fp);
       exit(1);
     }
-    fclose(fp);
-    exit(0);/* TBD  */
-  } else if (strcmp(argv[1], "delete") == 0) {  /* Handle delete */
+  fclose(fp);
+  exit(0);
+    } /* TBD  */
+   else if (strcmp(argv[1], "delete") == 0) {  /* Handle delete */
     if (argc != 3) {
       print_usage("Improper arguments for delete", argv[0]);
       exit(1);
@@ -105,12 +106,14 @@ FILE *open_db_file() {
 }
   
 void free_entries(entry *p) {
-  free(p);
-  while(p->next!=NULL)
-  {
-    free(p->next);
-    p=p->next;
-  }  
+free(p);
+while(p->next!=NULL)
+{
+free(p->next);
+p=p->next;
+}
+  /* TBD */
+  //printf("Memory is not being freed. This needs to be fixed!\n");  
 }
 
 void print_usage(char *message, char *progname) {
@@ -155,7 +158,7 @@ entry *load_entries(FILE *fp) {
     [^,\n] Square brackets are used to indicate a set of allowed
            characters [abc] means only a, b, or c. With the ^, it's
            used to specify a set of disallowed characters. So [^abc]
-           means any character except a, b, or c. [^,] means any
+           means any character *except* a, b, or c. [^,] means any
            character except a , [^,\n] means any character except a
            comma(,) or a newline(\n).
     %20[^,\n] will match a string of characters with a maximum length
@@ -184,7 +187,7 @@ void write_all_entries(entry * p) {
 
 void add(char *name, char *phone) {
   FILE *fp = fopen(DB, "a");
-  fprintf(fp, "%s,%s\n", name, phone);
+  fprintf(fp,"%s,%s\n", name, phone);
   fclose(fp);
 }
 
@@ -196,21 +199,37 @@ void list(FILE *db_file) {
     printf("%-20s : %10s\n", p->name, p->phone);
     p=p->next;
     count++;
-  }
-  printf("Total entries :  %d\n",count);
+    }
+printf("Total entries :  %d\n",count);
   /* TBD print total count */
   free_entries(base);
 }
-
 
 int delete(FILE *db_file, char *name) {
   entry *p = load_entries(db_file);
   entry *base = p;
   entry *prev = NULL;
-  entry del = NULL ; / Node to be deleted */
+  entry *del = NULL ; /* Node to be deleted */
   int deleted = 0;
   while (p!=NULL) {
     if (strcmp(p->name, name) == 0) {
+    if(prev!=NULL)
+    {
+    del=p;
+    prev->next=del->next;
+    free(del);
+    deleted=1;
+    }
+    else{
+    del=base;
+    base=base->next;
+    free(del);
+    deleted=1;
+    }
+    }
+    prev=p;
+    p=p->next;
+    
       /* Matching node found. Delete it from the linked list.
          Deletion from a linked list like this
    
@@ -221,46 +240,26 @@ int delete(FILE *db_file, char *name) {
          
          If the node to be deleted is p0, it's a special case. 
       */
-        if(prev!=NULL)
-        {
-          del=p;
-          prev->next=del->next;
-          free(del);
-          deleted=1;
-          
-        }
-        else
-        {
-          del=base;
-          base=base->next;
-          free(del);
-          deleted=1;
-        }
+
       /* TBD */
-    }
-    prev=p;
-    p=p->next;
+    
   }
   write_all_entries(base);
   free_entries(base);
   return deleted;
 }
 
-int search(FILE *db_file,char *name)
-{
-  entry *p = load_entries(db_file);
-  entry *base=p;
-  int t=0;
-  while(p!=NULL)
-  {
-    if(strcmp(p->name,name)==0)
-    {
-      printf("%s\n", p->phone);
-      t=1;
+int search(FILE *db_file, char *name){
+ entry *p = load_entries(db_file);
+  entry *base = p;
+  int m=0;
+  while (p!=NULL) {
+  if(strcmp(name,p->name)==0)
+   { printf("%s\n",p->phone);
+    m=1;}
+p=p->next;
     }
-    p=p->next;
-  }
-  if(t!=1)
+      if(m!=1)
   {
     return 0;
   }
