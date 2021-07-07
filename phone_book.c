@@ -249,7 +249,7 @@ int search(FILE *db_file, char *name)
     }
   p=p->next;
   }
-  if(m!=1)
+  if(t!=1)
   {
     return 0;
   }
